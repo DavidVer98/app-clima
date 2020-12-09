@@ -1,12 +1,20 @@
 <template>
   <div id="app" class="container">
-    <div  class="custom-control custom-switch" >
-      <input  type="checkbox" class="custom-control-input" id="customSwitch1" v-model="oscuro" />
-      <label class="custom-control-label" for="customSwitch1" v-bind:class="{texto:oscuro}"
+    <div class="custom-control custom-switch">
+      <input
+        type="checkbox"
+        class="custom-control-input"
+        id="customSwitch1"
+        v-model="oscuro"
+      />
+      <label
+        class="custom-control-label"
+        for="customSwitch1"
+        v-bind:class="{ texto: oscuro }"
         >Claro/Oscuro</label
       >
     </div>
-    <h1 v-bind:class="{texto:oscuro}">
+    <h1 v-bind:class="{ texto: oscuro }">
       Pronostico del tiempo
       <img
         alt="Vue logo"
@@ -52,49 +60,56 @@
       </div>
     </div>
 
-    <div class="d-flex" v-if="cargando != false">
-      <div
-        class="card p-4 mx-auto cardprueba"
-        style="margin-top: 40px; width: 27rem"
-      >
-        <img
-          class="card-img-top mi-imagen"
-          src="/background.jpeg"
-          alt="Card image "
-          style="width: 100%; height: 400px; border-radius: 10px"
-        />
-        <div class="card-img-overlay">
-          <div class="weather-icon">
-            <img :src="clima.imgUrl" width="25%" />
-          </div>
-          <h5 class="card-title">{{ clima.name }}, {{ clima.sys.country }}</h5>
-          <h3>{{ clima.dt | fecha }}</h3>
-          <h4>{{ clima.weather[0].description | mayuscula }}</h4>
+    <div class="container" v-if="cargando != false">
+      <div v-if="busqueda">
+        <div
+          class="card p-4 mx-auto cardprueba"
+          style="margin-top: 40px; width: 27rem"
+        >
+          <img
+            class="card-img-top mi-imagen"
+            src="/background.jpeg"
+            alt="Card image "
+            style="width: 100%; height: 400px; border-radius: 10px"
+          />
+          <div class="card-img-overlay">
+            <div class="weather-icon">
+              <img :src="clima.imgUrl" width="25%" />
+            </div>
+            <h5 class="card-title">
+              {{ clima.name }}, {{ clima.sys.country }}
+            </h5>
+            <h3>{{ clima.dt | fecha }}</h3>
+            <h4>{{ clima.weather[0].description | mayuscula }}</h4>
 
-          <hr class="style13" style="width: 90%; margin-left: 20px"  />
-          <div class="row">
-            <div class="col-4">
-              <div class="header">Temperatura</div>
-              <div class="value">
-                <h3>{{ clima.main.temp | temperatura }}<sup>°</sup>C</h3>
+            <hr class="style13" style="width: 90%; margin-left: 20px" />
+            <div class="row">
+              <div class="col-4">
+                <div class="header">Temperatura</div>
+                <div class="value">
+                  <h3>{{ clima.main.temp | temperatura }}<sup>°</sup>C</h3>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="header">Nubosidad</div>
+                <div class="value">
+                  <h3>{{ clima.clouds.all }}%</h3>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="header">Humedad</div>
+                <div class="value">
+                  <h3>{{ clima.main.humidity }}%</h3>
+                </div>
               </div>
             </div>
-            <div class="col-4">
-              <div class="header">Nubosidad</div>
-              <div class="value">
-                <h3>{{ clima.clouds.all }}%</h3>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="header">Humedad</div>
-              <div class="value">
-                <h3>{{ clima.main.humidity }}%</h3>
-              </div>
-            </div>
+            <hr class="style13" style="width: 50%; margin-left: 90px" />
+            <h3><span> </span>{{ clima.timezone | moment }}</h3>
           </div>
-          <hr class="style13" style="width: 50%; margin-left: 90px" />
-          <h3><span> </span>{{ clima.timezone | moment }}</h3>
         </div>
+      </div>
+      <div v-else style="margin-top:50px">
+        <h3>Ups.. No encontramos la ciudad :(</h3>
       </div>
     </div>
     <div
@@ -153,12 +168,13 @@ export default {
       clima: {},
       cargando: false,
       oscuro: false,
+      busqueda: true,
     };
   },
-  watch:{
-      oscuro : function(value){
-        this.cambiarModo();
-      }
+  watch: {
+    oscuro: function (value) {
+      this.cambiarModo();
+    },
   },
   methods: {
     getClima: function () {
@@ -167,6 +183,7 @@ export default {
       axios
         .get(this.prueba)
         .then((response) => {
+          this.busqueda = true;
           this.clima = response.data;
           // this.clima.temperatura = response.data.temperatura
           this.clima.imgUrl = `${this.urlBase}/${response.data.weather[0].icon}.png`;
@@ -174,10 +191,10 @@ export default {
         .catch((error) => {
           this.cargando = false;
           window.console.log(error);
-          this.cargando = false;
+          this.busqueda = false;
         })
         .finally(() => {
-          this.cargando = true
+          this.cargando = true;
           //console.log("hola");
         });
     },
@@ -218,7 +235,7 @@ export default {
   background-color: #1f1f1f;
   color: #f1eded;
 }
-.texto{
-   color: cornsilk;
+.texto {
+  color: cornsilk;
 }
 </style>
